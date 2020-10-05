@@ -27,7 +27,7 @@ win32-g++{
     LIBS += -lws2_32
 }
 
-include($$PWD/SimulIDE.pri)
+include(./SimulIDE.pri)
 
 QMAKE_CXXFLAGS_DEBUG -= -O
 QMAKE_CXXFLAGS_DEBUG -= -O1
@@ -64,6 +64,8 @@ runLrelease.commands = lrelease $$PWD/resources/translations/simulide.ts \
 
 QMAKE_EXTRA_TARGETS += runLrelease
 POST_TARGETDEPS     += runLrelease
+
+RESOURCES = ./src/application.qrc
 
 QM_FILES_INSTALL_PATH = $$PREFIX/share/$$TARGET/translations
 

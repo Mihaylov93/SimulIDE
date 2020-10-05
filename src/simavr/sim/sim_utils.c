@@ -27,7 +27,7 @@
 
 #include "sim_utils.h"
 
-#ifdef __MINGW32__
+#ifdef _WIN32
 char *strsep(char **stringp, const char *delim) {
 	char *rv = *stringp;
 	if (rv) {
