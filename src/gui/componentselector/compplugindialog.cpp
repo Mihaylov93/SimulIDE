@@ -16,7 +16,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.  *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <QDir>
 #include <QDebug>
 #include <QCloseEvent>
@@ -26,9 +26,7 @@
 #include "mainwindow.h"
 #include "ui_compplugin.h"
 
-CompPluginDialog::CompPluginDialog( QWidget *parent )
-                : QDialog( parent )
-                , ui( new Ui::ComponentPlugins )
+CompPluginDialog::CompPluginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::ComponentPlugins)
 {
     ui->setupUi(this);
 
@@ -36,8 +34,7 @@ CompPluginDialog::CompPluginDialog( QWidget *parent )
 
     m_initialized = false;
 
-    connect( m_compList, SIGNAL( itemChanged( QListWidgetItem* )),
-                   this, SLOT( slotItemChanged( QListWidgetItem* )));
+    connect(m_compList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(slotItemChanged(QListWidgetItem*)));
 }
 
 CompPluginDialog::~CompPluginDialog()
@@ -45,45 +42,42 @@ CompPluginDialog::~CompPluginDialog()
     delete ui;
 }
 
-void CompPluginDialog::addItem( QTreeWidgetItem* item )
+void CompPluginDialog::addItem(QTreeWidgetItem* item)
 {
-    QString itemName = item->text( 0 );
+    QString itemName = item->text(0);
 
-    QListWidgetItem* listItem = new QListWidgetItem( itemName );
+    QListWidgetItem* listItem = new QListWidgetItem(itemName);
 
-    if( item->isHidden() ) listItem->setCheckState( Qt::Unchecked );
-    else                   listItem->setCheckState( Qt::Checked );
+    if (item->isHidden())
+        listItem->setCheckState(Qt::Unchecked);
+    else
+        listItem->setCheckState(Qt::Checked);
 
-    m_compList->addItem( listItem );
-    m_qtwItem[ listItem ] = item;
-    //qDebug() << itemName;
+    m_compList->addItem(listItem);
+    m_qtwItem[listItem] = item;
+    // qDebug() << itemName;
 
     int childCount = item->childCount();
-    if( childCount > 0 )
-    {
-        listItem->setBackgroundColor( QColor(240, 235, 245));
-        listItem->setForeground( QBrush( QColor( 110, 95, 50 )));
+    if (childCount > 0) {
+        listItem->setBackground(QColor(240, 235, 245));
+        listItem->setForeground(QBrush(QColor(110, 95, 50)));
 
-        for( int i=0; i<childCount; i++ )
-        {
-            addItem( item->child( i ) );
+        for (int i = 0; i < childCount; i++) {
+            addItem(item->child(i));
         }
-    }
-    else
-    {
-        listItem->setIcon( QIcon(":/blanc.png") );
+    } else {
+        listItem->setIcon(QIcon(":/blanc.png"));
     }
 }
 
 void CompPluginDialog::setPluginList()
 {
-    if( m_initialized ) return;
+    if (m_initialized) return;
 
-    QList<QTreeWidgetItem*> itemList = ComponentSelector::self()->findItems("",Qt::MatchStartsWith);
+    QList<QTreeWidgetItem*> itemList = ComponentSelector::self()->findItems("", Qt::MatchStartsWith);
 
-    for( QTreeWidgetItem* item : itemList )
-    {
-        addItem( item );
+    for (QTreeWidgetItem* item : itemList) {
+        addItem(item);
     }
 
     m_initialized = true;
@@ -119,40 +113,39 @@ void CompPluginDialog::setPluginList()
     }*/
 }
 
-void CompPluginDialog::slotItemChanged( QListWidgetItem* item )
+void CompPluginDialog::slotItemChanged(QListWidgetItem* item)
 {
-    if( !m_initialized ) return;
+    if (!m_initialized) return;
 
-    setItemVisible( item, item->checkState() );
+    setItemVisible(item, item->checkState());
 }
 
-void CompPluginDialog::setItemVisible( QListWidgetItem* listIt, bool visible )
+void CompPluginDialog::setItemVisible(QListWidgetItem* listIt, bool visible)
 {
-    QTreeWidgetItem* treeItem = m_qtwItem[ listIt ];
-    treeItem->setHidden( !visible );
+    QTreeWidgetItem* treeItem = m_qtwItem[listIt];
+    treeItem->setHidden(!visible);
 
     int childCount = treeItem->childCount();
-    if( childCount > 0 )
-    {
-        for( int i=0; i<childCount; i++ )
-        {
-            QListWidgetItem* listItem = m_qtwItem.keys( treeItem->child( i ) ).at(0);
+    if (childCount > 0) {
+        for (int i = 0; i < childCount; i++) {
+            QListWidgetItem* listItem = m_qtwItem.keys(treeItem->child(i)).at(0);
 
-            if( visible ) listItem->setCheckState( Qt::Checked );
-            else          listItem->setCheckState( Qt::Unchecked );
+            if (visible)
+                listItem->setCheckState(Qt::Checked);
+            else
+                listItem->setCheckState(Qt::Unchecked);
         }
     }
 }
 
 void CompPluginDialog::reject()
 {
-    this->setVisible( false );
+    this->setVisible(false);
 
-    for( QListWidgetItem* listItem : m_compList->findItems("",Qt::MatchStartsWith) )
-    {
-        bool hidden = ( listItem->checkState() == Qt::Unchecked );
+    for (QListWidgetItem* listItem : m_compList->findItems("", Qt::MatchStartsWith)) {
+        bool hidden = (listItem->checkState() == Qt::Unchecked);
 
-        MainWindow::self()->settings()->setValue( listItem->text()+"/hidden", hidden );
+        MainWindow::self()->settings()->setValue(listItem->text() + "/hidden", hidden);
     }
 }
 

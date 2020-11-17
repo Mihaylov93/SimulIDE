@@ -26,37 +26,36 @@
 #include <QTextStream>
 #include <qpoint.h>
 #include <QPointF>
+#include <QFileInfo>
 #include <cmath>
 
-
-inline void MessageBoxNB( const QString &title, const QString &message )
+inline void MessageBoxNB(const QString &title, const QString &message)
 {
-    QMessageBox* msgBox = new QMessageBox( 0l );
-    msgBox->setAttribute( Qt::WA_DeleteOnClose ); //makes sure the msgbox is deleted automatically when closed
-    msgBox->setStandardButtons( QMessageBox::Ok );
-    msgBox->setWindowTitle( title );
-    msgBox->setText( message );
-    msgBox->setModal( false ); 
+    QMessageBox *msgBox = new QMessageBox(0l);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);    // makes sure the msgbox is deleted automatically when closed
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    msgBox->setWindowTitle(title);
+    msgBox->setText(message);
+    msgBox->setModal(false);
     msgBox->open();
 }
 
-inline QString addQuotes( const QString &string )
+inline QString addQuotes(const QString &string)
 {
-    return "\""+string+"\"";
+    return "\"" + string + "\"";
 }
 
-
-inline QString strippedName( const QString &fullFileName )
+inline QString strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
 }
 
-inline QString fileToString( const QString &fileName, const QString &caller )
+inline QString fileToString(const QString &fileName, const QString &caller)
 {
+    Q_UNUSED(caller)
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        MessageBoxNB( "ERROR", "Cannot read file "+fileName+":\n"+file.errorString() );
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        MessageBoxNB("ERROR", "Cannot read file " + fileName + ":\n" + file.errorString());
         return "";
     }
     QTextStream in(&file);
@@ -67,32 +66,32 @@ inline QString fileToString( const QString &fileName, const QString &caller )
     return text;
 }
 
-inline QStringList fileToStringList( const QString &fileName, const QString &caller )
+inline QStringList fileToStringList(const QString &fileName, const QString &caller)
 {
+    Q_UNUSED(caller)
     QStringList text;
     text << " ";
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        MessageBoxNB( "ERROR", "Cannot read file "+fileName+":\n"+file.errorString() );
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        MessageBoxNB("ERROR", "Cannot read file " + fileName + ":\n" + file.errorString());
         return text;
     }
     QTextStream in(&file);
     in.setCodec("UTF-8");
-    while( !in.atEnd() ) text.append( in.readLine() );
+    while (!in.atEnd()) text.append(in.readLine());
     file.close();
 
     return text;
 }
 
-inline QByteArray fileToByteArray( const QString &fileName, const QString &caller )
+inline QByteArray fileToByteArray(const QString &fileName, const QString &caller)
 {
+    Q_UNUSED(caller)
     QByteArray ba;
 
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        MessageBoxNB( "ERROR", "Cannot read file "+fileName+":\n"+file.errorString() );
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        MessageBoxNB("ERROR", "Cannot read file " + fileName + ":\n" + file.errorString());
         return ba;
     }
     ba = file.readAll();
@@ -102,99 +101,109 @@ inline QByteArray fileToByteArray( const QString &fileName, const QString &calle
     return ba;
 }
 
-inline QString val2hex( int d )
+inline QString val2hex(int d)
 {
-    QString Hex="0123456789ABCDEF";
-    QString h = Hex.mid(d&15,1);
-    while(d>15)
-    {
+    QString Hex = "0123456789ABCDEF";
+    QString h = Hex.mid(d & 15, 1);
+    while (d > 15) {
         d >>= 4;
-        h = Hex.mid( d&15,1 ) + h;
+        h = Hex.mid(d & 15, 1) + h;
     }
     return h;
 }
 
-inline QString decToBase( int value, int base, int digits )
+inline QString decToBase(int value, int base, int digits)
 {
     QString converted = "";
-    for( int i=0; i<digits; i++ )
-    {
-        if( value >= base ) converted = val2hex(value%base) + converted;
-        else                converted = val2hex(value) + converted;
+    for (int i = 0; i < digits; i++) {
+        if (value >= base)
+            converted = val2hex(value % base) + converted;
+        else
+            converted = val2hex(value) + converted;
 
-        if( i+1 == 4 ) converted = " " + converted;
-        //if( (i+1)%8 == 0 ) converted = " " + converted;
+        if (i + 1 == 4) converted = " " + converted;
+        // if( (i+1)%8 == 0 ) converted = " " + converted;
 
-        value = floor( value/base );
+        value = floor(value / base);
     }
     return converted;
 }
 
-inline int roundDown( int x, int roundness )
+inline int roundDown(int x, int roundness)
 {
-    if( x < 0 ) return (x-roundness+1) / roundness;
-    else        return (x / roundness);
+    if (x < 0)
+        return (x - roundness + 1) / roundness;
+    else
+        return (x / roundness);
 }
 
-inline int roundDown( float x, int roundness ) { return roundDown( int(x), roundness ); }
-
-inline QPoint roundDown( const QPoint & p, int roundness )
+inline int roundDown(float x, int roundness)
 {
-    return QPoint( roundDown( p.x(), roundness ), roundDown( p.y(), roundness ) );
+    return roundDown(static_cast<int>(x), roundness);
 }
 
-inline int snapToGrid( int x ) { return roundDown( x+2, 4 )*4; }
+inline QPoint roundDown(const QPoint &p, int roundness)
+{
+    return QPoint(roundDown(p.x(), roundness), roundDown(p.y(), roundness));
+}
 
-inline int snapToCompGrid( int x ) { return roundDown( x+4, 8 )*8; }
+inline int snapToGrid(int x)
+{
+    return roundDown(x + 2, 4) * 4;
+}
 
-inline QPointF togrid( QPointF point )
+inline int snapToCompGrid(int x)
+{
+    return roundDown(x + 4, 8) * 8;
+}
+
+inline QPointF togrid(QPointF point)
 {
     int valor;
-    valor = snapToGrid( (int)point.x() );
+    valor = snapToGrid((int)point.x());
     point.rx() = (float)valor;
-    valor = snapToGrid( (int)point.y() );
+    valor = snapToGrid((int)point.y());
     point.ry() = (float)valor;
     return point;
 }
 
-inline QPointF toCompGrid( QPointF point )
+inline QPointF toCompGrid(QPointF point)
 {
     int valor;
-    valor = snapToCompGrid( (int)point.x() );
+    valor = snapToCompGrid((int)point.x());
     point.rx() = (float)valor;
-    valor = snapToCompGrid( (int)point.y() );
+    valor = snapToCompGrid((int)point.y());
     point.ry() = (float)valor;
     return point;
 }
 
-inline QPoint togrid( QPoint point )
+inline QPoint togrid(QPoint point)
 {
     int valor;
-    valor = snapToGrid( (int)point.x() );
+    valor = snapToGrid((int)point.x());
     point.rx() = valor;
-    valor = snapToGrid( (int)point.y() );
+    valor = snapToGrid((int)point.y());
     point.ry() = valor;
     return point;
 }
 
-inline int getAlignment( QPointF p1, QPointF p2 )
+inline int getAlignment(QPointF p1, QPointF p2)
 {
     int align = 0;
-    if( p1.x() == p2.x() ) align += 2;           // Aligned in Y axis
-    if( p1.y() == p2.y() ) align += 1;           // Aligned in X axis
+    if (p1.x() == p2.x()) align += 2;    // Aligned in Y axis
+    if (p1.y() == p2.y()) align += 1;    // Aligned in X axis
 
     return align;
 }
 
 #include "pin.h"
-inline bool lessPinX( Pin* pinA, Pin* pinB )
+inline bool lessPinX(Pin *pinA, Pin *pinB)
 {
     return pinA->x() < pinB->x();
 }
 
-inline bool lessPinY( Pin* pinA, Pin* pinB )
+inline bool lessPinY(Pin *pinA, Pin *pinB)
 {
     return pinA->y() < pinB->y();
 }
 #endif
-
